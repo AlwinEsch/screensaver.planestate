@@ -207,7 +207,7 @@ CAnimValueCfg	gAnimCfg[NUMCFGS][NUMCFGVALUES] =
 CPlanestate::CPlanestate(f32 cfgProbability[NUMCFGS]) :
 	m_ColAnim(0, CRGBA(0.0f, 0.0f,	0.0f, 1.0f)), m_RotAnim(1, CVector(0.0f, 0.0f, 0.0f)), m_CADAnim(2,	CVector(0.0f, 0.0f,	0.0f)),
 	m_PPPAnim(3, CVector(0.0f,	0.0f, 0.0f)), m_CARAnim(4, CVector(0.0f, 0.0f, 0.0f)), m_CRAnim(5, CVector(0.0f, 0.0f, 0.0f)),
-	m_PSAnim(6, CVector(0.0f, 0.0f, 0.0f)), m_PPDAnim(7, 0), m_CMRAnim(8, CVector(0.0f, 0.0f, 0.0f))
+	m_PSAnim(6, CVector(0.0f, 0.0f, 0.0f)), m_PPDAnim(7, 0), m_CMRAnim(8, CVector(0.0f, 0.0f, 0.0f)), m_texture(0)
 {
   m_PlaneYDelta =	1.0f;
   m_Size.Set(10.0f, 10.0f, 0.0f);
@@ -282,7 +282,8 @@ bool	CPlanestate::RestoreDevice(CRenderD3D* render)
 void	CPlanestate::InvalidateDevice(CRenderD3D* render)
 {
   m_Background.InvalidateDevice(render);
-  glDeleteTextures(1, &m_texture);
+  if (m_texture)
+    glDeleteTextures(1, &m_texture);
 }
 
 ////////////////////////////////////////////////////////////////////////////
