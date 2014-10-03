@@ -308,10 +308,10 @@ void		CVectorAnimator::Update(f32 deltaTime)
 CVector		CVectorAnimator::GetValue(void)
 {
   CVector	value;
-  for (int i=0; i<3; i++)
-  {
-    value[i] = m_Values[i].GetValue();
-  }
+  value.x = m_Values[0].GetValue();
+  value.y = m_Values[1].GetValue()
+  value.z = m_Values[2].GetValue();
+
   return value;
 }
 
@@ -319,10 +319,9 @@ CVector		CVectorAnimator::GetValue(void)
 //
 void	CVectorAnimator::SetValue(CVector value)
 {
-  for (int i=0; i<3; i++)
-  {
-    m_Values[i].SetValue(value[i]);
-  }
+  m_values[0].SetValue(value.x);
+  m_values[1].SetValue(value.y);
+  m_values[2].SetValue(value.z);
 }
 
 
