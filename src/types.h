@@ -10,6 +10,9 @@
 
 #pragma once
 
+#include <stdint.h>
+#include <stdlib.h>
+
 /***************************** D E F I N E S *******************************/
 
 typedef signed char			s8;
