@@ -438,6 +438,7 @@ bool	CPlanestate::CreatePlaneTexture(CRenderD3D* render)
   }
 
   m_texture = SOIL_create_OGL_texture(data, 256, 256, SOIL_LOAD_RGBA, 0, 0);
+  printf("got textureid %u\n", m_texture);
 
   return true;
 }
