@@ -121,6 +121,7 @@ bool		CBackground::Draw(CRenderD3D* render)
     glTexCoord2f(gBGVertices[i].u, gBGVertices[i].v);
     glVertex3f(gBGVertices[i].x, gBGVertices[i].y, gBGVertices[i].z);
   }
+  glEnd();
 
   return true;
 }
