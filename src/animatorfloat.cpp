@@ -319,9 +319,9 @@ CVector		CVectorAnimator::GetValue(void)
 //
 void	CVectorAnimator::SetValue(CVector value)
 {
-  m_values[0].SetValue(value.x);
-  m_values[1].SetValue(value.y);
-  m_values[2].SetValue(value.z);
+  m_Values[0].SetValue(value.x);
+  m_Values[1].SetValue(value.y);
+  m_Values[2].SetValue(value.z);
 }
 
 
