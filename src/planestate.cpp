@@ -38,6 +38,7 @@
 
 #include "main.h"
 #include "planestate.h"
+#include <SOIL/SOIL.h>
 #include <memory.h>
 #include <vector>
 
