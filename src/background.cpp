@@ -132,15 +132,14 @@ bool	CBackground::CreateTexture(CRenderD3D* render)
   // Create star texture
   char* data = new char[256*254*4];
 
-  for	(int y=0; y<height; y++)
-    memset(data, 0, 256*256*4);
+  memset(data, 0, 256*256*4);
 	
   int		pitch	= 256;
   u32*	ptr	= (u32*) data;
   for	(int i=0; i<numStars; i++)
   {
-    s32	x =	Rand(width-2)+1;
-    s32	y =	Rand(height-2)+1;
+    s32	x =	Rand(256-2)+1;
+    s32	y =	Rand(256-2)+1;
     f32	brightness = RandFloat();
     f32	brightness2 = brightness*RandFloat();
 
