@@ -38,6 +38,7 @@
 
 #include "main.h"
 #include "planestate.h"
+#include <memory.h>
 #include <vector>
 
 typedef	struct	TRenderVertex
@@ -420,14 +421,6 @@ bool	CPlanestate::CreatePlaneTexture(CRenderD3D* render)
   unsigned char* data = new unsigned char[256*254*4];
 
   memset(data, 0, 256*256*4);
-
-  LPDIRECT3DDEVICE8	d3dDevice	= render->GetDevice();
-
-  s32		width =	TEXTURESIZE, height = TEXTURESIZE;
-  D3DLOCKED_RECT	rect;
-  DVERIFY( d3dDevice->CreateTexture(width, height, 1,	0, TEXTUREFORMAT, D3DPOOL_MANAGED, &m_Texture) );
-
-  m_Texture->LockRect(0, &rect, NULL, 0);
 
   f32		cx = (f32)256/2.0f, cy = (f32)256/2.0f;
   int		pitch	= 256;
