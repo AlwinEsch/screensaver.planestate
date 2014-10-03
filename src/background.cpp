@@ -137,6 +137,7 @@ bool	CBackground::CreateTexture(CRenderD3D* render)
 	
   int		pitch	= 256;
   u32*	ptr	= (u32*) data;
+  int numStars = 50;
   for	(int i=0; i<numStars; i++)
   {
     s32	x =	Rand(256-2)+1;
