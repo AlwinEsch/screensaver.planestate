@@ -416,28 +416,34 @@ bool		CPlanestate::Draw(CRenderD3D* render)
 //
 bool	CPlanestate::CreatePlaneTexture(CRenderD3D* render)
 {
-	LPDIRECT3DDEVICE8	d3dDevice	= render->GetDevice();
+  // Create star texture
+  unsigned char* data = new unsigned char[256*254*4];
 
-	s32		width =	TEXTURESIZE, height = TEXTURESIZE;
-	D3DLOCKED_RECT	rect;
-	DVERIFY( d3dDevice->CreateTexture(width, height, 1,	0, TEXTUREFORMAT, D3DPOOL_MANAGED, &m_Texture) );
+  memset(data, 0, 256*256*4);
 
-	m_Texture->LockRect(0, &rect, NULL, 0);
+  LPDIRECT3DDEVICE8	d3dDevice	= render->GetDevice();
 
-	f32		cx = (f32)width/2.0f, cy = (f32)height/2.0f;
-	int		pitch	= rect.Pitch/sizeof(u32);
-	for	(int y=0; y<height;	y++)
-	{
-		u32*	ptr		= &((u32*)rect.pBits)[pitch*y];
-		for	(int x=0; x<width; x++)
-		{
-			f32	dx = cx	- (f32)x, dy = cy - (f32)y;
-			f32	brightness = 1.0f -	(sqrt(dx*dx+dy*dy)/((f32)TEXTURESIZE/2.0f));
-			*ptr++ =  CRGBA(brightness, brightness, brightness, 1.0f).RenderColor();
-		}
-	}
+  s32		width =	TEXTURESIZE, height = TEXTURESIZE;
+  D3DLOCKED_RECT	rect;
+  DVERIFY( d3dDevice->CreateTexture(width, height, 1,	0, TEXTUREFORMAT, D3DPOOL_MANAGED, &m_Texture) );
 
-	m_Texture->UnlockRect(0);
+  m_Texture->LockRect(0, &rect, NULL, 0);
 
-	return true;
+  f32		cx = (f32)256/2.0f, cy = (f32)256/2.0f;
+  int		pitch	= 256;
+  for	(int y=0; y<256;	y++)
+  {
+    u32*	ptr	= (u32*) data+pitch*y;
+    for	(int x=0; x<width; x++)
+    {
+      f32	dx = cx	- (f32)x, dy = cy - (f32)y;
+      f32	brightness = 1.0f -	(sqrt(dx*dx+dy*dy)/((f32)TEXTURESIZE/2.0f));
+      *ptr++ =  CRGBA(brightness, brightness, brightness, 1.0f).RenderColor();
+    }
+  }
+
+  m_texture = SOIL_create_OGL_texture(data, 256, 256, SOIL_LOAD_RGBA, 0, 0);
+  delete[] data;
+
+  return true;
 }
