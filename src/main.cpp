@@ -23,34 +23,36 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#include <xbmc/xbmc_scr_dll.h>
+#include <GL/gl.h>
+#include <SOIL/SOIL.h>
 #include "main.h"
 #include "planestate.h"
-#include "XmlDocument.h"
 #include "timer.h"
 #include <time.h>
 
-static char gScrName[1024];
+CPlanestate* gPlanestate = null;
+CRenderD3D gRender;
+CTimer*	gTimer = null;
 
-CPlanestate*	gPlanestate = null;
-CRenderD3D		gRender;
-CTimer*			gTimer = null;
-f32				gCfgProbability[NUMCFGS] = { 0.35f, 0.35f,0.15f, 0.15f };	// The probability that we pick a specific configuration. Should sum up to 1.0
+// The probability that we pick a specific configuration. Should sum up to 1.0
+f32 gCfgProbability[NUMCFGS] = { 0.35f, 0.35f,0.15f, 0.15f };
 
 ////////////////////////////////////////////////////////////////////////////
 // XBMC has loaded us into memory, we should set our core values
 // here and load any settings we may have from our config file
 //
-extern "C" void Create(LPDIRECT3DDEVICE8 pd3dDevice, int width, int height, const char* szScreenSaverName)
+ADDON_STATUS ADDON_Create(void* hdl, void* props)
 {
-	strcpy(gScrName,szScreenSaverName);
-	LoadSettings();
+  if (!props)
+    return ADDON_STATUS_UNKNOWN;
 
-	gRender.m_D3dDevice = pd3dDevice;
-	gRender.m_Width	= width;
-	gRender.m_Height= height;
+  SCR_PROPS* scrprops = (SCR_PROPS*)props;
 
-	gPlanestate = null;
-	gTimer = null;
+  gRender.m_Width = scrprops->width;
+  gRender.m_Height = scrprops->height;
+
+  return ADDON_STATUS_NEED_SETTINGS;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -59,14 +61,19 @@ extern "C" void Create(LPDIRECT3DDEVICE8 pd3dDevice, int width, int height, cons
 //
 extern "C" void Start()
 {
-	srand((u32)time(null));
-	gPlanestate = new CPlanestate(gCfgProbability);
-	if (!gPlanestate)
-		return;
-	gTimer = new CTimer();
-	gTimer->Init();
-	if (!gPlanestate->RestoreDevice(&gRender))
-		Stop();
+  srand((u32)time(null));
+  gPlanestate = new CPlanestate(gCfgProbability);
+  if (!gPlanestate)
+    return;
+  gTimer = new CTimer();
+  gTimer->Init();
+  if (!gPlanestate->RestoreDevice(&gRender))
+    Stop();
+
+  // make sure these add up to 1
+  float sum = gCfgProbability[0]+gCfgProbability[1]+gCfgProbability[2]+gCfgProbability[3];
+  for (size_t i=0;i<4;++i)
+    gCfgProbability[i] /= sum;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -76,92 +83,66 @@ extern "C" void Start()
 //
 extern "C" void Render()
 {
-	if (!gPlanestate)
-		return;
-	gTimer->Update();
-	gPlanestate->Update(gTimer->GetDeltaTime());
-	gPlanestate->Draw(&gRender);
+  if (!gPlanestate)
+    return;
+  gTimer->Update();
+  gPlanestate->Update(gTimer->GetDeltaTime());
+  gPlanestate->Draw(&gRender);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // XBMC tells us to stop the screensaver we should free any memory and release
 // any resources we have created.
 //
-extern "C" void Stop()
+extern "C" void ADDON_Stop()
 {
-	if (gPlanestate)
-		gPlanestate->InvalidateDevice(&gRender);
-	SAFE_DELETE( gPlanestate );
-	SAFE_DELETE( gTimer );
-
+  if (gPlanestate)
+    gPlanestate->InvalidateDevice(&gRender);
+  SAFE_DELETE( gPlanestate );
+  SAFE_DELETE( gTimer );
 }
 
-////////////////////////////////////////////////////////////////////////////
-// Load settings from the [screensavername].xml configuration file
-// the name of the screensaver (filename) is used as the name of
-// the xml file - this is sent to us by XBMC when the Init func is called.
-//
-void LoadSettings()
+extern "C" void ADDON_Destroy()
 {
-	XmlNode node, childNode; //, grandChild;
-	CXmlDocument doc;
-	
-	// Set up the defaults
-	SetDefaults();
-
-	char szXMLFile[1024];
-	strcpy(szXMLFile, "Q:\\screensavers\\");
-	strcat(szXMLFile, gScrName);
-	strcat(szXMLFile, ".xml");
-
-	// Load the config file
-	if (doc.Load(szXMLFile) >= 0)
-	{
-		node = doc.GetNextNode(XML_ROOT_NODE);
-		while(node > 0)
-		{
-			if (strcmpi(doc.GetNodeTag(node),"screensaver"))
-			{
-				node = doc.GetNextNode(node);
-				continue;
-			}
-
-			if (childNode = doc.GetChildNode(node,"CfgProbability1"))	gCfgProbability[0] = (f32)atof(doc.GetNodeText(childNode));
-			if (childNode = doc.GetChildNode(node,"CfgProbability2"))	gCfgProbability[1] = (f32)atof(doc.GetNodeText(childNode));
-			if (childNode = doc.GetChildNode(node,"CfgProbability3"))	gCfgProbability[2] = (f32)atof(doc.GetNodeText(childNode));
-			if (childNode = doc.GetChildNode(node,"CfgProbability4"))	gCfgProbability[3] = (f32)atof(doc.GetNodeText(childNode));
-
-			node = doc.GetNextNode(node);
-		}
-		doc.Close();
-	}
 }
 
-////////////////////////////////////////////////////////////////////////////
-// set any default values for your screensaver's parameters
-//
-void SetDefaults()
+extern "C" ADDON_STATUS ADDON_GetStatus()
 {
-	return;
+  return ADDON_STATUS_OK;
 }
 
-////////////////////////////////////////////////////////////////////////////
-// not used, but can be used to pass info back to XBMC if required in the future
-//
-extern "C" void GetInfo(SCR_INFO* pInfo)
+extern "C" bool ADDON_HasSettings()
 {
-	return;
+  return true;
 }
 
-////////////////////////////////////////////////////////////////////////////
-//
-extern "C" void __declspec(dllexport) get_module(struct ScreenSaver* pScr)
+extern "C" unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
 {
-	pScr->Create = Create;
-	pScr->Start = Start;
-	pScr->Render = Render;
-	pScr->Stop = Stop;
-	pScr->GetInfo = GetInfo;
+  return 0;
 }
 
+extern "C" ADDON_STATUS ADDON_SetSetting(const char *strSetting, const void *value)
+{
+  if (strcmp(strSetting, "probability1") == 0)
+    gCfgProbability[0] = *(float*)value;
+  if (strcmp(strSetting, "probability2") == 0)
+    gCfgProbability[1] = *(float*)value;
+  if (strcmp(strSetting, "probability3") == 0)
+    gCfgProbability[2] = *(float*)value;
+  if (strcmp(strSetting, "probability4") == 0)
+    gCfgProbability[3] = *(float*)value;
 
+  return ADDON_STATUS_OK;
+}
+
+extern "C" void ADDON_FreeSettings()
+{
+}
+
+extern "C" void ADDON_Announce(const char *flag, const char *sender, const char *message, const void *data)
+{
+}
+
+extern "C" void GetInfo(SCR_INFO *info)
+{
+}
