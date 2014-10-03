@@ -285,7 +285,7 @@ void	CColorAnimator::SetValue(CRGBA value)
 
 ////////////////////////////////////////////////////////////////////////////
 //
-CVectorAnimator::CVectorAnimator(u32 id, CVector& value) : CValueAnimator(AVT_VECTOR, id)
+CVectorAnimator::CVectorAnimator(u32 id, const CVector& value) : CValueAnimator(AVT_VECTOR, id)
 {
   m_Values[0].Init(0, value.x);
   m_Values[1].Init(1, value.y);

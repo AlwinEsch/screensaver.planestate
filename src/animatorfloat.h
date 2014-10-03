@@ -124,7 +124,7 @@ class CVectorAnimator : public CValueAnimator
   public:
     CFloatAnimator	m_Values[3];
 
-    CVectorAnimator(u32 id, CVector& value);
+    CVectorAnimator(u32 id, const CVector& value);
     virtual	void	Update(f32 deltaTime);
 
     void		SetValue(CVector value);
