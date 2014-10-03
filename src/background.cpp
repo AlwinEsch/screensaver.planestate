@@ -14,6 +14,7 @@
 #include "main.h"
 #include "background.h"
 #include <memory.h>
+#include <SOIL/SOIL.h>
 
 typedef	struct	TBGRenderVertex
 {
