@@ -28,6 +28,7 @@
 #include <SOIL/SOIL.h>
 #include "main.h"
 #include "planestate.h"
+#include <string.h>
 #include "timer.h"
 #include <time.h>
 
