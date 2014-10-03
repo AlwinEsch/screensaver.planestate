@@ -103,9 +103,7 @@ protected:
 	CVectorAnimator	m_PSAnim;
 	CVectorAnimator	m_CMRAnim;
 
-	// Device objects
-	LPDIRECT3DVERTEXBUFFER8		m_VertexBuffer;
-	LPDIRECT3DTEXTURE8			m_Texture;
+        GLuint m_texture;
 
 	bool			CreatePlaneTexture(CRenderD3D* render);
 	void			UpdatePlane(f32 dt);

@@ -42,9 +42,8 @@
 typedef	struct	TRenderVertex
 {
 	CVector		pos;
-	DWORD		col;
+	RGBA col;
 	f32			u, v;
-	enum FVF {	FVF_Flags =	D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_DIFFUSE	};
 } TRenderVertex;
 
 #define NUMCFGVALUES	(3*6+2*2+1)
@@ -207,127 +206,123 @@ CPlanestate::CPlanestate(f32 cfgProbability[NUMCFGS]) :
 	m_PPPAnim(3, CVector(0.0f,	0.0f, 0.0f)), m_CARAnim(4, CVector(0.0f, 0.0f, 0.0f)), m_CRAnim(5, CVector(0.0f, 0.0f, 0.0f)),
 	m_PSAnim(6, CVector(0.0f, 0.0f, 0.0f)), m_PPDAnim(7, 0), m_CMRAnim(8, CVector(0.0f, 0.0f, 0.0f))
 {
-	m_PlaneYDelta =	1.0f;
-	m_Size.Set(10.0f, 10.0f, 0.0f);
-	m_CenterAxisRot.Zero();
+  m_PlaneYDelta =	1.0f;
+  m_Size.Set(10.0f, 10.0f, 0.0f);
+  m_CenterAxisRot.Zero();
 
-	// Pick a configuration to show.
-	m_ConfigNr = Rand(NUMCFGS);
-	f32 rand = RandFloat();
-	for (int i=0; i<NUMCFGS; i++)
-	{
-		rand -= cfgProbability[i];
-		if (rand <= 0.0f)
-		{
-			m_ConfigNr = i;
-			break;
-		}
-	}
+  // Pick a configuration to show.
+  m_ConfigNr = Rand(NUMCFGS);
+  f32 rand = RandFloat();
+  for (int i=0; i<NUMCFGS; i++)
+  {
+    rand -= cfgProbability[i];
+    if (rand <= 0.0f)
+    {
+      m_ConfigNr = i;
+      break;
+    }
+  }
 
-	// Setup all the values	that will get animated
-	CFloatAnimator*	floatAnims[] =
-	{
-		&m_PSAnim.m_Values[0],	&m_PSAnim.m_Values[1],
-		&m_PPPAnim.m_Values[0],	&m_PPPAnim.m_Values[1],	&m_PPPAnim.m_Values[2],	
-		&m_PPDAnim,
-		&m_RotAnim.m_Values[0],	&m_RotAnim.m_Values[1],	&m_RotAnim.m_Values[2],	
-		&m_CARAnim.m_Values[0],	&m_CARAnim.m_Values[1],	&m_CARAnim.m_Values[2],	
-		&m_ColAnim.m_Values[0],	&m_ColAnim.m_Values[1],	&m_ColAnim.m_Values[2],
-		&m_CRAnim.m_Values[0],	&m_CRAnim.m_Values[1],	&m_CRAnim.m_Values[2],	
-		&m_CADAnim.m_Values[0],	&m_CADAnim.m_Values[1],	&m_CADAnim.m_Values[2],	
-		&m_CMRAnim.m_Values[0],	&m_CMRAnim.m_Values[1],
-	};
-	CAnimValueCfg*	cfg	= gAnimCfg[m_ConfigNr];
-	for	(int vNr=0;	vNr<NUMCFGVALUES; vNr++)
-	{
-		floatAnims[vNr]->SetMinMax(	 cfg[vNr].m_MinValue, cfg[vNr].m_MaxValue);
-		floatAnims[vNr]->m_AnimMode	= cfg[vNr].m_AnimMode;
-		floatAnims[vNr]->SetMinMaxITime(cfg[vNr].m_MinITime, cfg[vNr].m_MaxITime, cfg[vNr].m_ITimeAM);
-		floatAnims[vNr]->SetMinMaxDelay(cfg[vNr].m_MinDelay, cfg[vNr].m_MaxDelay, cfg[vNr].m_DelayAM);
-	}
+  // Setup all the values	that will get animated
+  CFloatAnimator*	floatAnims[] =
+  {
+    &m_PSAnim.m_Values[0],	&m_PSAnim.m_Values[1],
+    &m_PPPAnim.m_Values[0],	&m_PPPAnim.m_Values[1],	&m_PPPAnim.m_Values[2],	
+    &m_PPDAnim,
+    &m_RotAnim.m_Values[0],	&m_RotAnim.m_Values[1],	&m_RotAnim.m_Values[2],	
+    &m_CARAnim.m_Values[0],	&m_CARAnim.m_Values[1],	&m_CARAnim.m_Values[2],	
+    &m_ColAnim.m_Values[0],	&m_ColAnim.m_Values[1],	&m_ColAnim.m_Values[2],
+    &m_CRAnim.m_Values[0],	&m_CRAnim.m_Values[1],	&m_CRAnim.m_Values[2],	
+    &m_CADAnim.m_Values[0],	&m_CADAnim.m_Values[1],	&m_CADAnim.m_Values[2],	
+    &m_CMRAnim.m_Values[0],	&m_CMRAnim.m_Values[1],
+  };
+  CAnimValueCfg*	cfg	= gAnimCfg[m_ConfigNr];
+  for	(int vNr=0;	vNr<NUMCFGVALUES; vNr++)
+  {
+    floatAnims[vNr]->SetMinMax(	 cfg[vNr].m_MinValue, cfg[vNr].m_MaxValue);
+    floatAnims[vNr]->m_AnimMode	= cfg[vNr].m_AnimMode;
+    floatAnims[vNr]->SetMinMaxITime(cfg[vNr].m_MinITime, cfg[vNr].m_MaxITime, cfg[vNr].m_ITimeAM);
+    floatAnims[vNr]->SetMinMaxDelay(cfg[vNr].m_MinDelay, cfg[vNr].m_MaxDelay, cfg[vNr].m_DelayAM);
+  }
 
-	m_NumPlanes			= gNumPlanes[m_ConfigNr];
-	m_PlaneUpdateDelay	= 0.015f;
-	m_Planes			= new CPSPlane[m_NumPlanes];
+  m_NumPlanes			= gNumPlanes[m_ConfigNr];
+  m_PlaneUpdateDelay	= 0.015f;
+  m_Planes			= new CPSPlane[m_NumPlanes];
 
-	// Perform a number	of updates so all planes get away from thier inital position
-	for	(int i=0; i<m_NumPlanes*2; i++)
-	{
-		UpdatePlane(1.0f/50.0f);
-		m_Background.Update(1.0f/50.0f);
-	}
+  // Perform a number	of updates so all planes get away from thier inital position
+  for	(int i=0; i<m_NumPlanes*2; i++)
+  {
+    UpdatePlane(1.0f/50.0f);
+    m_Background.Update(1.0f/50.0f);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 //
 CPlanestate::~CPlanestate()
 {
-	SAFE_DELETE_ARRAY(m_Planes);
+  SAFE_DELETE_ARRAY(m_Planes);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 //
 bool	CPlanestate::RestoreDevice(CRenderD3D* render)
 {
-	LPDIRECT3DDEVICE8	d3dDevice	= render->GetDevice();
-
-	d3dDevice->CreateVertexBuffer( m_NumPlanes*4*sizeof(TRenderVertex), D3DUSAGE_WRITEONLY|D3DUSAGE_DYNAMIC, TRenderVertex::FVF_Flags,	D3DPOOL_DEFAULT, &m_VertexBuffer );
-	if (!CreatePlaneTexture(render))
-		return false;
-	m_Background.RestoreDevice(render);
-	return true;
+  if (!CreatePlaneTexture(render))
+    return false;
+  m_Background.RestoreDevice(render);
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 //
 void	CPlanestate::InvalidateDevice(CRenderD3D* render)
 {
-	m_Background.InvalidateDevice(render);
-	SAFE_RELEASE( m_Texture ); 
-	SAFE_RELEASE( m_VertexBuffer	); 
+  m_Background.InvalidateDevice(render);
+  glDeleteTextures(1, &m_texture);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 //
 void		CPlanestate::Update(f32 dt)
 {
-	m_Background.Update(dt);
+  m_Background.Update(dt);
 
-	UpdatePlane(dt);
+  UpdatePlane(dt);
 
-	// Create the transformation matrix for each plane
-	CMatrix	centerAxis, tmp, tmp2, cAxisRot, pivotRot;
-	CVector	tmpPos;
-	centerAxis.Identity();
-	centerAxis.Rotate(m_CenterAxisRot.x, m_CenterAxisRot.y, m_CenterAxisRot.z);
-	CPSPlane*	plane =	m_Planes;
-	for	(int pnr=0;	pnr<m_NumPlanes; pnr++, plane++)
-	{
-		f32			rotScale = (f32)pnr+1.0f;
-		cAxisRot.Rotate(m_PlaneCAxisRot.x*rotScale,	m_PlaneCAxisRot.y*rotScale,	m_PlaneCAxisRot.z*rotScale);
+  // Create the transformation matrix for each plane
+  CMatrix	centerAxis, tmp, tmp2, cAxisRot, pivotRot;
+  CVector	tmpPos;
+  centerAxis.Identity();
+  centerAxis.Rotate(m_CenterAxisRot.x, m_CenterAxisRot.y, m_CenterAxisRot.z);
+  CPSPlane*	plane =	m_Planes;
+  for	(int pnr=0;	pnr<m_NumPlanes; pnr++, plane++)
+  {
+    f32			rotScale = (f32)pnr+1.0f;
+    cAxisRot.Rotate(m_PlaneCAxisRot.x*rotScale,	m_PlaneCAxisRot.y*rotScale,	m_PlaneCAxisRot.z*rotScale);
 
-		plane->m_Transform.Identity();
-		plane->m_Transform.Scale(plane->m_Scale.x, plane->m_Scale.y, 1.0);
-		pivotRot.Rotate(plane->m_Rot.x,	plane->m_Rot.y,	plane->m_Rot.z);
+    plane->m_Transform.Identity();
+    plane->m_Transform.Scale(plane->m_Scale.x, plane->m_Scale.y, 1.0);
+    pivotRot.Rotate(plane->m_Rot.x,	plane->m_Rot.y,	plane->m_Rot.z);
 
-		tmpPos = pivotRot *	plane->m_PivotPos;
-		tmp.Multiply(pivotRot, plane->m_Transform);
+    tmpPos = pivotRot *	plane->m_PivotPos;
+    tmp.Multiply(pivotRot, plane->m_Transform);
 
-		tmp._41 = tmpPos.x+plane->m_CenterAxisDist.x;
-		tmp._42 = tmpPos.y+plane->m_CenterAxisDist.y+(f32)pnr*m_PlaneYDelta-((f32)m_NumPlanes*m_PlaneYDelta*0.5f);
-		tmp._43 = tmpPos.z+plane->m_CenterAxisDist.z;
+    tmp._41 = tmpPos.x+plane->m_CenterAxisDist.x;
+    tmp._42 = tmpPos.y+plane->m_CenterAxisDist.y+(f32)pnr*m_PlaneYDelta-((f32)m_NumPlanes*m_PlaneYDelta*0.5f);
+    tmp._43 = tmpPos.z+plane->m_CenterAxisDist.z;
 
-		tmp2.Multiply(centerAxis, cAxisRot);
-		plane->m_Transform.Multiply(tmp2, tmp);
+    tmp2.Multiply(centerAxis, cAxisRot);
+    plane->m_Transform.Multiply(tmp2, tmp);
 
-		if (gBillboard[m_ConfigNr])
-		{
-			// Billboarded so kill the rotation
-			plane->m_Transform._12 = plane->m_Transform._13 = 0;	plane->m_Transform._11 = plane->m_Scale.x;
-			plane->m_Transform._21 = plane->m_Transform._23 = 0;	plane->m_Transform._22 = plane->m_Scale.y;
-			plane->m_Transform._31 = plane->m_Transform._32 = 0;	plane->m_Transform._33 = 0.0;
-		}
-	}
+    if (gBillboard[m_ConfigNr])
+    {
+      // Billboarded so kill the rotation
+      plane->m_Transform._12 = plane->m_Transform._13 = 0;	plane->m_Transform._11 = plane->m_Scale.x;
+      plane->m_Transform._21 = plane->m_Transform._23 = 0;	plane->m_Transform._22 = plane->m_Scale.y;
+      plane->m_Transform._31 = plane->m_Transform._32 = 0;	plane->m_Transform._33 = 0.0;
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -335,116 +330,80 @@ void		CPlanestate::Update(f32 dt)
 //
 void	CPlanestate::UpdatePlane(f32 dt)
 {
-	CPSPlane* plane	= &m_Planes[0];
+  CPSPlane* plane	= &m_Planes[0];
 
-	static f32 delay = 0.0f;
-	delay -= dt;
-	if (delay <	0.0f)
-	{
-		// Move	all	the	plane data up one step
-		for	(int i=m_NumPlanes-1; i>0; i--)
-		{
-			m_Planes[i].Copy(m_Planes[i-1]);
-		}
-		delay =	m_PlaneUpdateDelay;		// NOTE: We	shouldn't just clear this. We will get uneven times. However it will probably not be noticible in this case
+  static f32 delay = 0.0f;
+  delay -= dt;
+  if (delay <	0.0f)
+  {
+    // Move	all	the	plane data up one step
+    for	(int i=m_NumPlanes-1; i>0; i--)
+    {
+      m_Planes[i].Copy(m_Planes[i-1]);
+    }
+    delay =	m_PlaneUpdateDelay;		// NOTE: We	shouldn't just clear this. We will get uneven times. However it will probably not be noticible in this case
 
-		plane->m_Col = m_ColAnim.GetValue();
-		plane->m_Rot = m_RotAnim.GetValue();
-		plane->m_CenterAxisDist	= m_CADAnim.GetValue();
-		plane->m_PivotPos =	m_PPPAnim.GetValue();
-		plane->m_Scale = m_PSAnim.GetValue();
-	}
+    plane->m_Col = m_ColAnim.GetValue();
+    plane->m_Rot = m_RotAnim.GetValue();
+    plane->m_CenterAxisDist	= m_CADAnim.GetValue();
+    plane->m_PivotPos =	m_PPPAnim.GetValue();
+    plane->m_Scale = m_PSAnim.GetValue();
+  }
 
-	// Animate all values
-	m_PPDAnim.Update(dt);
-	m_PSAnim.Update(dt);
-	m_ColAnim.Update(dt);
-	m_RotAnim.Update(dt);
-	m_CADAnim.Update(dt);
-	m_PPPAnim.Update(dt);
-	m_CARAnim.Update(dt);
-	m_CRAnim.Update(dt);
-	m_CMRAnim.Update(dt);
+  // Animate all values
+  m_PPDAnim.Update(dt);
+  m_PSAnim.Update(dt);
+  m_ColAnim.Update(dt);
+  m_RotAnim.Update(dt);
+  m_CADAnim.Update(dt);
+  m_PPPAnim.Update(dt);
+  m_CARAnim.Update(dt);
+  m_CRAnim.Update(dt);
+  m_CMRAnim.Update(dt);
 
-	m_PlaneYDelta	= m_PPDAnim.GetValue();
-	m_CenterAxisRot = m_CRAnim.GetValue();
-	m_PlaneCAxisRot	= m_CARAnim.GetValue();
+  m_PlaneYDelta	= m_PPDAnim.GetValue();
+  m_CenterAxisRot = m_CRAnim.GetValue();
+  m_PlaneCAxisRot	= m_CARAnim.GetValue();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 //
 bool		CPlanestate::Draw(CRenderD3D* render)
 {
-	LPDIRECT3DDEVICE8	d3dDevice	= render->GetDevice();
+//  D3DXMATRIX mProjection;
+//  D3DXMatrixPerspectiveFovLH(	&mProjection, DEGTORAD(	60.0f ), (f32)render->m_Width / (f32)render->m_Height, 0.1f, 2000.0f );
+//  d3dDevice->SetTransform( D3DTS_PROJECTION, &mProjection );
+//  CMatrix		tmp;
+//  tmp.Identity();
+//  d3dDevice->SetTransform(D3DTS_VIEW, (D3DXMATRIX*)&tmp);
 
-	D3DXMATRIX mProjection;
-	D3DXMatrixPerspectiveFovLH(	&mProjection, DEGTORAD(	60.0f ), (f32)render->m_Width / (f32)render->m_Height, 0.1f, 2000.0f );
-	d3dDevice->SetTransform( D3DTS_PROJECTION, &mProjection );
-	CMatrix		tmp;
-	tmp.Identity();
-	d3dDevice->SetTransform(D3DTS_VIEW, (D3DXMATRIX*)&tmp);
+  m_Background.Draw(render);
 
-	m_Background.Draw(render);
+  // Fill	in the vertex buffers with the plane vertices
+  std::vector<TRenderVertex> verts(m_NumPlanes*4);
+  TRenderVertex* vert	= &verts[0];
+  for	(int pNr=0;	pNr<m_NumPlanes; pNr++)
+  {
+    CPSPlane* plane	= &m_Planes[pNr];
+    CRGBA col	= plane->m_Col;
+    vert->pos =	plane->m_Transform*CVector(-1.0f, 1.0f,	0.0f);	vert->u	= 0.0f;			vert->v	= 0.0f;			vert->col =	col; vert++;
+    vert->pos =	plane->m_Transform*CVector(-1.0f,-1.0f,	0.0f);	vert->u	= TEXTUREUV;	vert->v	= 0.0f;			vert->col =	col; vert++;
+    vert->pos =	plane->m_Transform*CVector(	1.0f, 1.0f,	0.0f);	vert->u	= 0.0f;			vert->v	= TEXTUREUV;	vert->col =	col; vert++;
+    vert->pos =	plane->m_Transform*CVector(	1.0f,-1.0f,	0.0f);	vert->u	= TEXTUREUV;	vert->v	= TEXTUREUV;	vert->col =	col; vert++;
+  }
 
-	// Fill	in the vertex buffers with the plane vertices
-	TRenderVertex* vert	= NULL;
-	m_VertexBuffer->Lock( 0, m_NumPlanes*4*sizeof(TRenderVertex), (BYTE**)&vert, 0);
-	for	(int pNr=0;	pNr<m_NumPlanes; pNr++)
-	{
-		CPSPlane* plane	= &m_Planes[pNr];
-		DWORD	col	= plane->m_Col.RenderColor();
-		vert->pos =	plane->m_Transform*CVector(-1.0f, 1.0f,	0.0f);	vert->u	= 0.0f;			vert->v	= 0.0f;			vert->col =	col; vert++;
-		vert->pos =	plane->m_Transform*CVector(-1.0f,-1.0f,	0.0f);	vert->u	= TEXTUREUV;	vert->v	= 0.0f;			vert->col =	col; vert++;
-		vert->pos =	plane->m_Transform*CVector(	1.0f, 1.0f,	0.0f);	vert->u	= 0.0f;			vert->v	= TEXTUREUV;	vert->col =	col; vert++;
-		vert->pos =	plane->m_Transform*CVector(	1.0f,-1.0f,	0.0f);	vert->u	= TEXTUREUV;	vert->v	= TEXTUREUV;	vert->col =	col; vert++;
-	}
-	m_VertexBuffer->Unlock();
+  glBegin(GL_TRIANGLE_STRIP);
+  for (size_t i=0;i<m_NumPlanes*4;++i)
+  {
+    glColor3f(verts[i].col.r/255.0,
+              verts[i].col.g/255.0,
+              verts[i].col.b/255.0);
+    glTexCoord2f(verts[i].u, verts[i].v);
+    glVertex3f(verts[i].pos.x, verts[i].pos.y, verts[i].pos.z);
+  }
+  glEnd();
 
-	// Setup our texture
-	d3dSetTextureStageState(0, D3DTSS_COLOROP,	 D3DTOP_MODULATE);
-	d3dSetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-	d3dSetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-	d3dSetTextureStageState(0, D3DTSS_ALPHAOP,	 D3DTOP_DISABLE);
-	d3dSetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
-	d3dSetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
-	d3dSetTextureStageState(0, D3DTSS_MIPFILTER, D3DTEXF_NONE);
-	d3dSetTextureStageState(0, D3DTSS_ADDRESSU,  D3DTADDRESS_CLAMP);
-	d3dSetTextureStageState(0, D3DTSS_ADDRESSV,  D3DTADDRESS_CLAMP);
-	d3dSetTextureStageState(1, D3DTSS_COLOROP,	 D3DTOP_DISABLE);
-	d3dSetTextureStageState(1, D3DTSS_ALPHAOP,	 D3DTOP_DISABLE);
-
-	d3dSetRenderState(D3DRS_ZENABLE,	FALSE);
-	d3dSetRenderState(D3DRS_LIGHTING,	FALSE);
-	d3dSetRenderState(D3DRS_COLORVERTEX,TRUE);
-	d3dSetRenderState(D3DRS_FOGENABLE,  FALSE );
-	d3dSetRenderState(D3DRS_FOGTABLEMODE,D3DFOG_NONE );
-	d3dSetRenderState(D3DRS_FILLMODE,    D3DFILL_SOLID );
-
-	d3dSetRenderState(D3DRS_SRCBLEND,	 D3DBLEND_ONE);
-	d3dSetRenderState(D3DRS_DESTBLEND,	 D3DBLEND_ONE);
-	d3dSetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-
-	d3dSetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-
-	d3dDevice->SetTexture( 0, m_Texture );
-	d3dDevice->SetStreamSource(	0, m_VertexBuffer, sizeof(TRenderVertex) );
-	d3dDevice->SetVertexShader( TRenderVertex::FVF_Flags	);
-
-	CMatrix	m;
-	m.Identity();
-	m._43 = gDistToCam[m_ConfigNr];
-	d3dDevice->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&m);
-
-	m.Rotate(m_CMRAnim.GetValue().x, m_CMRAnim.GetValue().y, 0.0f);
-	d3dDevice->SetTransform(D3DTS_VIEW, (D3DXMATRIX*)&m);
-
-	for	(int pnr=0;	pnr<m_NumPlanes; pnr++)
-	{
-		// Far from the most optimal but it should do just fine
-		d3dDevice->DrawPrimitive( D3DPT_TRIANGLESTRIP,	pnr*4, 2 );
-	}
-
-	return true;
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////
