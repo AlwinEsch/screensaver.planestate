@@ -61,6 +61,11 @@ public:
 	 			CRGBA(f32 R, f32 G, f32 B, f32 A)	{ col[0]=R; col[1]=G; col[2]=B; col[3]=A;			}
 	void		Set(f32 R, f32 G, f32 B, f32 A)		{ col[0]=R; col[1]=G; col[2]=B; col[3]=A;			}
 	CRGBA&		operator = (const CRGBA& c)			{ r = c.r; g = c.g; b = c.b; a = c.a; return *this; }
+        u32      RenderColor(void) const
+        {
+          return ((u32)(int)a << 24) | ( (u32)(int)r << 16) | ( (u32)(int)g << 8) | ((u32)(int)b);
+        }
+      
 };
 
 ////////////////////////////////////////////////////////////////////////////
