@@ -59,7 +59,6 @@ public:
 
 	 			CRGBA()								{ col[0] = col[1] = col[2] = 0.0f;	col[3] = 1.0f;	}
 	 			CRGBA(f32 R, f32 G, f32 B, f32 A)	{ col[0]=R; col[1]=G; col[2]=B; col[3]=A;			}
-	u32			RenderColor(void) const;
 	void		Set(f32 R, f32 G, f32 B, f32 A)		{ col[0]=R; col[1]=G; col[2]=B; col[3]=A;			}
 	CRGBA&		operator = (const CRGBA& c)			{ r = c.r; g = c.g; b = c.b; a = c.a; return *this; }
 };
@@ -100,14 +99,6 @@ inline f32	Clamp(f32 x, f32 min, f32 max)		{ return (x <= min ? min : (x >= max 
 inline f32	RandFloat(void)						{ return (1.0f / RAND_MAX) * ((f32)rand());	}
 inline int	ISEQUAL(f32 a,f32 b,f32 absprec)	{ return (fabsf((a)-(b))<=absprec);	}
 inline int	Rand(int max)						{ return rand() % max; }
-
-////////////////////////////////////////////////////////////////////////////
-// Returns a u32 color data, which is used in rendering.
-//
-inline u32	CRGBA::RenderColor(void) const
-{
-	return ((((u32)FloatToByte(a) << 24) | ( (u32)FloatToByte(r) << 16) | ( (u32)FloatToByte(g) << 8) |  (u32)FloatToByte(b)));
-}
 
 ////////////////////////////////////////////////////////////////////////////
 //
