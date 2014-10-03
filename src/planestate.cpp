@@ -38,6 +38,7 @@
 
 #include "main.h"
 #include "planestate.h"
+#include <vector>
 
 typedef	struct	TRenderVertex
 {
