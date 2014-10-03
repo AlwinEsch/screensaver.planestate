@@ -13,6 +13,7 @@
 
 #include "main.h"
 #include "background.h"
+#include <memory.h>
 
 typedef	struct	TBGRenderVertex
 {
