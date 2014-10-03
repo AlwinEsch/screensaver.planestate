@@ -427,7 +427,7 @@ bool	CPlanestate::CreatePlaneTexture(CRenderD3D* render)
   for	(int y=0; y<256;	y++)
   {
     u32*	ptr	= (u32*) data+pitch*y;
-    for	(int x=0; x<width; x++)
+    for	(int x=0; x<256; x++)
     {
       f32	dx = cx	- (f32)x, dy = cy - (f32)y;
       f32	brightness = 1.0f -	(sqrt(dx*dx+dy*dy)/((f32)TEXTURESIZE/2.0f));
