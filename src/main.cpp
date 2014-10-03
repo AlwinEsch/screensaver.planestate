@@ -68,7 +68,7 @@ extern "C" void Start()
   gTimer = new CTimer();
   gTimer->Init();
   if (!gPlanestate->RestoreDevice(&gRender))
-    Stop();
+    ADDON_Stop();
 
   // make sure these add up to 1
   float sum = gCfgProbability[0]+gCfgProbability[1]+gCfgProbability[2]+gCfgProbability[3];
