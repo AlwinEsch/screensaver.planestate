@@ -430,7 +430,7 @@ bool	CPlanestate::CreatePlaneTexture(CRenderD3D* render)
     for	(int x=0; x<256; x++)
     {
       f32	dx = cx	- (f32)x, dy = cy - (f32)y;
-      f32	brightness = 1.0f -	(sqrt(dx*dx+dy*dy)/((f32)TEXTURESIZE/2.0f));
+      f32	brightness = 1.0f -	(sqrt(dx*dx+dy*dy)/((f32)256/2.0f));
       *ptr++ =  CRGBA(brightness, brightness, brightness, 1.0f).RenderColor();
     }
   }
