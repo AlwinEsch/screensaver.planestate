@@ -388,9 +388,9 @@ bool		CPlanestate::Draw(CRenderD3D* render)
     CPSPlane* plane	= &m_Planes[pNr];
     CRGBA col	= plane->m_Col;
     vert->pos =	plane->m_Transform*CVector(-1.0f, 1.0f,	0.0f);	vert->u	= 0.0f;			vert->v	= 0.0f;			vert->col =	col; vert++;
-    vert->pos =	plane->m_Transform*CVector(-1.0f,-1.0f,	0.0f);	vert->u	= TEXTUREUV;	vert->v	= 0.0f;			vert->col =	col; vert++;
-    vert->pos =	plane->m_Transform*CVector(	1.0f, 1.0f,	0.0f);	vert->u	= 0.0f;			vert->v	= TEXTUREUV;	vert->col =	col; vert++;
-    vert->pos =	plane->m_Transform*CVector(	1.0f,-1.0f,	0.0f);	vert->u	= TEXTUREUV;	vert->v	= TEXTUREUV;	vert->col =	col; vert++;
+    vert->pos =	plane->m_Transform*CVector(-1.0f,-1.0f,	0.0f);	vert->u	= 1.0;	vert->v	= 0.0f;			vert->col =	col; vert++;
+    vert->pos =	plane->m_Transform*CVector(	1.0f, 1.0f,	0.0f);	vert->u	= 0.0f;			vert->v	= 1.0;	vert->col =	col; vert++;
+    vert->pos =	plane->m_Transform*CVector(	1.0f,-1.0f,	0.0f);	vert->u	= 1.0;	vert->v	= 1.0;	vert->col =	col; vert++;
   }
 
   glBegin(GL_TRIANGLE_STRIP);
