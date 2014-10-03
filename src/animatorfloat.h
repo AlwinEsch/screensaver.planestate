@@ -109,7 +109,7 @@ class CColorAnimator : public CValueAnimator
   public:
     CFloatAnimator	m_Values[4];
 
-    CColorAnimator(u32 id, CRGBA& value);
+    CColorAnimator(u32 id, const CRGBA& value);
     virtual	void	Update(f32 deltaTime);
 
     void		SetValue(CRGBA value);

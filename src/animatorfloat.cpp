@@ -236,7 +236,7 @@ void	CFloatAnimator::GetNewValue(f32& fromValue, f32& toValue, f32 min, f32 max,
 
 ////////////////////////////////////////////////////////////////////////////
 //
-CColorAnimator::CColorAnimator(u32 id, CRGBA& value) : CValueAnimator(AVT_COLOR, id)
+CColorAnimator::CColorAnimator(u32 id, const CRGBA& value) : CValueAnimator(AVT_COLOR, id)
 {
   for (int i=0; i<4; i++)
   {
