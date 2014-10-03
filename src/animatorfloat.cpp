@@ -309,7 +309,7 @@ CVector		CVectorAnimator::GetValue(void)
 {
   CVector	value;
   value.x = m_Values[0].GetValue();
-  value.y = m_Values[1].GetValue()
+  value.y = m_Values[1].GetValue();
   value.z = m_Values[2].GetValue();
 
   return value;
