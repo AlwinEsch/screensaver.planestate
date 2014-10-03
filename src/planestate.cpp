@@ -42,7 +42,7 @@
 typedef	struct	TRenderVertex
 {
 	CVector		pos;
-	RGBA col;
+	CRGBA col;
 	f32			u, v;
 } TRenderVertex;
 
