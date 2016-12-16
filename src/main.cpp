@@ -23,7 +23,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <xbmc/xbmc_scr_dll.h>
+#include <xbmc_scr_dll.h>
 #include <GL/gl.h>
 #include <SOIL/SOIL.h>
 #include "main.h"
