@@ -57,6 +57,18 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 }
 
 ////////////////////////////////////////////////////////////////////////////
+// XBMC tells us to stop the screensaver we should free any memory and release
+// any resources we have created.
+//
+extern "C" void Stop()
+{
+  if (gPlanestate)
+    gPlanestate->InvalidateDevice(&gRender);
+  SAFE_DELETE( gPlanestate );
+  SAFE_DELETE( gTimer );
+}
+
+////////////////////////////////////////////////////////////////////////////
 // XBMC tells us we should get ready to start rendering. This function
 // is called once when the screensaver is activated by XBMC.
 //
@@ -69,7 +81,7 @@ extern "C" void Start()
   gTimer = new CTimer();
   gTimer->Init();
   if (!gPlanestate->RestoreDevice(&gRender))
-    ADDON_Stop();
+    Stop();
 
   // make sure these add up to 1
   float sum = gCfgProbability[0]+gCfgProbability[1]+gCfgProbability[2]+gCfgProbability[3];
@@ -89,18 +101,6 @@ extern "C" void Render()
   gTimer->Update();
   gPlanestate->Update(gTimer->GetDeltaTime());
   gPlanestate->Draw(&gRender);
-}
-
-////////////////////////////////////////////////////////////////////////////
-// XBMC tells us to stop the screensaver we should free any memory and release
-// any resources we have created.
-//
-extern "C" void ADDON_Stop()
-{
-  if (gPlanestate)
-    gPlanestate->InvalidateDevice(&gRender);
-  SAFE_DELETE( gPlanestate );
-  SAFE_DELETE( gTimer );
 }
 
 extern "C" void ADDON_Destroy()
