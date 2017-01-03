@@ -23,7 +23,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <xbmc_scr_dll.h>
+#include <kodi/screensaver/Screensaver.h>
+#include <kodi/General.h>
 #include <GL/gl.h>
 #include <SOIL/SOIL.h>
 #include "main.h"
@@ -33,123 +34,88 @@
 #include <time.h>
 
 CPlanestate* gPlanestate = null;
-CRenderD3D gRender;
 CTimer*	gTimer = null;
 
 // The probability that we pick a specific configuration. Should sum up to 1.0
 f32 gCfgProbability[NUMCFGS] = { 0.35f, 0.35f,0.15f, 0.15f };
 
+class CScreensaverPlaceState
+  : public kodi::addon::CAddonBase,
+    public kodi::addon::CInstanceScreensaver
+{
+public:
+  CScreensaverPlaceState();
+
+  virtual bool Start() override;
+  virtual void Stop() override;
+  virtual void Render() override;
+
+private:
+  CRenderD3D m_render;
+};
+
 ////////////////////////////////////////////////////////////////////////////
-// XBMC has loaded us into memory, we should set our core values
+// Kodi has loaded us into memory, we should set our core values
 // here and load any settings we may have from our config file
 //
-ADDON_STATUS ADDON_Create(void* hdl, void* props)
+CScreensaverPlaceState::CScreensaverPlaceState()
 {
-  if (!props)
-    return ADDON_STATUS_UNKNOWN;
-
-  SCR_PROPS* scrprops = (SCR_PROPS*)props;
-
-  gRender.m_Width = scrprops->width;
-  gRender.m_Height = scrprops->height;
-
-  return ADDON_STATUS_NEED_SETTINGS;
+  m_render.m_Width = Width();
+  m_render.m_Height = Height();
+  
+  kodi::GetSettingFloat("probability1", gCfgProbability[0]);
+  kodi::GetSettingFloat("probability2", gCfgProbability[1]);
+  kodi::GetSettingFloat("probability3", gCfgProbability[2]);
+  kodi::GetSettingFloat("probability4", gCfgProbability[3]);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// XBMC tells us to stop the screensaver we should free any memory and release
-// any resources we have created.
+// Kodi tells us we should get ready to start rendering. This function
+// is called once when the screensaver is activated by Kodi.
 //
-extern "C" void Stop()
-{
-  if (gPlanestate)
-    gPlanestate->InvalidateDevice(&gRender);
-  SAFE_DELETE( gPlanestate );
-  SAFE_DELETE( gTimer );
-}
-
-////////////////////////////////////////////////////////////////////////////
-// XBMC tells us we should get ready to start rendering. This function
-// is called once when the screensaver is activated by XBMC.
-//
-extern "C" void Start()
+bool CScreensaverPlaceState::Start()
 {
   srand((u32)time(null));
   gPlanestate = new CPlanestate(gCfgProbability);
   if (!gPlanestate)
-    return;
+    return false;
   gTimer = new CTimer();
   gTimer->Init();
-  if (!gPlanestate->RestoreDevice(&gRender))
+  if (!gPlanestate->RestoreDevice(&m_render))
     Stop();
 
   // make sure these add up to 1
   float sum = gCfgProbability[0]+gCfgProbability[1]+gCfgProbability[2]+gCfgProbability[3];
   for (size_t i=0;i<4;++i)
     gCfgProbability[i] /= sum;
+
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// XBMC tells us to render a frame of our screensaver. This is called on
-// each frame render in XBMC, you should render a single frame only - the DX
+// Kodi tells us to stop the screensaver we should free any memory and release
+// any resources we have created.
+//
+void CScreensaverPlaceState::Stop()
+{
+  if (gPlanestate)
+    gPlanestate->InvalidateDevice(&m_render);
+  SAFE_DELETE( gPlanestate );
+  SAFE_DELETE( gTimer );
+}
+
+////////////////////////////////////////////////////////////////////////////
+// Kodi tells us to render a frame of our screensaver. This is called on
+// each frame render in Kodi, you should render a single frame only - the DX
 // device will already have been cleared.
 //
-extern "C" void Render()
+void CScreensaverPlaceState::Render()
 {
   if (!gPlanestate)
     return;
   gTimer->Update();
   gPlanestate->Update(gTimer->GetDeltaTime());
-  gPlanestate->Draw(&gRender);
+  gPlanestate->Draw(&m_render);
 }
 
-extern "C" void ADDON_Destroy()
-{
-}
-
-extern "C" ADDON_STATUS ADDON_GetStatus()
-{
-  return ADDON_STATUS_OK;
-}
-
-extern "C" bool ADDON_HasSettings()
-{
-  return true;
-}
-
-extern "C" unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
-{
-  return 0;
-}
-
-extern "C" ADDON_STATUS ADDON_SetSetting(const char *strSetting, const void *value)
-{
-  if (strcmp(strSetting, "probability1") == 0)
-    gCfgProbability[0] = *(float*)value;
-  if (strcmp(strSetting, "probability2") == 0)
-    gCfgProbability[1] = *(float*)value;
-  if (strcmp(strSetting, "probability3") == 0)
-    gCfgProbability[2] = *(float*)value;
-  if (strcmp(strSetting, "probability4") == 0)
-    gCfgProbability[3] = *(float*)value;
-
-  return ADDON_STATUS_OK;
-}
-
-extern "C" void ADDON_FreeSettings()
-{
-}
-
-extern "C" void ADDON_Announce(const char *flag, const char *sender, const char *message, const void *data)
-{
-}
-
-extern "C" ADDON_STATUS ADDON_CreateInstance(int instanceType, const char* instanceID, KODI_HANDLE instance, KODI_HANDLE* addonInstance)
-{
-  return ADDON_STATUS_UNKNOWN;
-}
-
-extern "C" void ADDON_DestroyInstance(int instanceType, KODI_HANDLE instance)
-{
-}
-
+ADDONCREATOR(CScreensaverPlaceState);
