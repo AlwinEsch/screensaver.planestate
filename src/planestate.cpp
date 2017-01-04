@@ -420,9 +420,9 @@ bool		CPlanestate::Draw(CRenderD3D* render)
 bool	CPlanestate::CreatePlaneTexture(CRenderD3D* render)
 {
   // Create star texture
-  unsigned char* data = new unsigned char[256*256*4];
+  unsigned char* data = new unsigned char[256*256*8];
 
-  memset(data, 0, 256*256*4);
+  memset(data, 0, 256*256*8);
 
   f32		cx = (f32)256/2.0f, cy = (f32)256/2.0f;
   int		pitch	= 256;
